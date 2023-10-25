@@ -31,7 +31,7 @@
     If you would like to use the Evergeen PowerShell module as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application name as it appears in the module.
 .PARAMETER WinGet
     If you would like to use WinGet as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application id as it appears in WinGet.
-.REQUIRES PowerShell Version 5.0, Cloudpager and Evergreen PowerShell modules are required, the PowerShellAI module is optional. You will require this module if you wish to integrate with the OpenAI
+.REQUIRES PowerShell Version 5.0, Cloudpager, WinGet, Chocolatey and Evergreen PowerShell modules are required, the PowerShellAI module is optional. You will require this module if you wish to integrate with the OpenAI
     API. You must have Cloudpaging Studio on the packaging VM along with Numecent's CreateJson.ps1 and studio-nip.ps1. You should run the CloudpagingStudio-prep.ps1 on your packaging VM before taking a snapshot. 
 .EXAMPLE
     >AutomateEvergreenPackaging.ps1 -AppName "GoogleChrome" -publisher "Google" -sourcepackagetype "msi" -sourcechannel "stable" -image_file_path "\\ImageServer\Images\Chrome.png" -CommandLine "C:\Program Files\Google\Chrome\Application\chrome.exe" -WorkpodID "<id>" -Description "Google Chrome is the world's most popular web browser." -Chocolatety $false -Evergreen $true -WinGet $false
