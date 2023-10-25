@@ -14,7 +14,7 @@ $PrepScript = "https://raw.githubusercontent.com/Numecent/Automated-Packaging/ma
 $NIPScript = "https://raw.githubusercontent.com/Numecent/Automated-Packaging/master/studio-nip.ps1"
 $JSONScript = "https://raw.githubusercontent.com/Numecent/Automated-Packaging/Powershell-json-generation/Powershell-Generator/NIP_Software/Scripts/CreateJson.ps1"
 $AutoInstallScript = 'https://raw.githubusercontent.com/Numecent/Automated-Packaging/Powershell-json-generation/Powershell-Generator/NIP_Software/Scripts/Auto_Install_from_json.ps1'
-$AutopackageScript = "https://raw.githubusercontent.com/Rorymon/AutomateEvergreenPackaging/main/AutomateEvergreenPackaging.ps1"
+$AutopackageScript = "https://github.com/Rorymon/AutomatePackagingAndPatching/blob/main/AutomatePackagingAndPatching.ps1"
 
 If(!(test-path $NIPDirectory))
 {
