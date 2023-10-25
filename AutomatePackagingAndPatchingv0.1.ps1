@@ -2,9 +2,9 @@
 .SYNOPSIS
     Auto-package Applications for Cloudpager.
 .DESCRIPTION
-    This script combines the Evergreen Module, Nevergreen Module and Numecent Auto-package feature to automate application packaging of the latest version of public consumer versions of applications
+    This script combines the Evergreen Module, Chocolatey, WinGet and Numecent Auto-package feature to automate application packaging of the latest version of public consumer versions of applications
 .PARAMETER AppName
-    Name of Application as found in the Evergreen or Nevergreen Find- functions.
+    Name of Application as found in the Evergreen or Chocolatey e.g. GoogleChrome. This can also be set to an application id in WinGet e.g. Google.Chrome.
 .PARAMETER Publisher
     Name of the application's manufacturer.
 .PARAMETER Sourcepackagetype
@@ -25,11 +25,17 @@
     If you wish to automatically publish the application to a Cloudpager Workdpod, pass the WorkpodID here e.g. You may have an early adopters Workpod for UAT.
 .PARAMETER Description
     If you would like to set a description for the application, do this here.
+.PARAMETER Chocolatey
+    If you would like to use Chocolatey as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application name as it appears in Chocolatey.
+.PARAMETER Evergreen
+    If you would like to use the Evergeen PowerShell module as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application name as it appears in the module.
+.PARAMETER WinGet
+    If you would like to use WinGet as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application id as it appears in WinGet.
 .REQUIRES PowerShell Version 5.0, Cloudpager and Evergreen PowerShell modules are required, the PowerShellAI module is optional. You will require this module if you wish to integrate with the OpenAI
     API. You must have Cloudpaging Studio on the packaging VM along with Numecent's CreateJson.ps1 and studio-nip.ps1. You should run the CloudpagingStudio-prep.ps1 on your packaging VM before taking a snapshot. 
 .EXAMPLE
-    >AutomateEvergreenPackaging.ps1 -AppName "GoogleChrome" -publisher "Google" -sourcepackagetype "msi" -sourcechannel "stable" -image_file_path "\\ImageServer\Images\Chrome.png" -CommandLine "C:\Program Files\Google\Chrome\Application\chrome.exe" -WorkpodID "<id>" -Description "Google Chrome is the world's most popular web browser."
-    >AutomateEvergreenPackaging.ps1 -AppName "NotepadPlusPlus" -publisher "Don Ho" -sourcepackagetype "exe" -sourceplatform "Windows" -image_file_path "\\ImageServer\Images\NotepadPlusPlus.png" -Arguments " /S" -CommandLine "C:\Program Files\Notepad++\notepad++.exe" -WorkpodID "<id>"
+    >AutomateEvergreenPackaging.ps1 -AppName "GoogleChrome" -publisher "Google" -sourcepackagetype "msi" -sourcechannel "stable" -image_file_path "\\ImageServer\Images\Chrome.png" -CommandLine "C:\Program Files\Google\Chrome\Application\chrome.exe" -WorkpodID "<id>" -Description "Google Chrome is the world's most popular web browser." -Chocolatety $false -Evergreen $true -WinGet $false
+    >AutomateEvergreenPackaging.ps1 -AppName "NotepadPlusPlus" -publisher "Don Ho" -sourcepackagetype "exe" -sourceplatform "Windows" -image_file_path "\\ImageServer\Images\NotepadPlusPlus.png" -Arguments " /S" -CommandLine "C:\Program Files\Notepad++\notepad++.exe" -WorkpodID "<id>" -Chocolatety $false -Evergreen $false -WinGet $true
 #>
 
 Param(
@@ -82,6 +88,17 @@ Param(
    [string[]]$FileExclusion
 )
 
+#Enter values for these variables before using script
+$skey = "<skey>"
+
+#$TeamsURI = "<WebHookURI>"
+
+$AppsDashboardURL = '<Cloudpager Apps Dashboard URL>'
+
+#Remove the comments for the next 2 lines and add OpenAI API Key to use Open AI API as part of the script
+#$gptkey = ConvertTo-SecureString "<OpenAIAPIKey>" -AsPlainText -Force
+#Set-OpenAIKey -key $gptKey
+
 if ($WinGet -eq $True -and $Evergreen -eq $True) {
     throw 'You must not set WinGet and Evergreen to True, please choose a single source.'
 }
@@ -121,18 +138,6 @@ if(Compare-Object  "C:\NIP_Software\Scripts\CreateJson.ps1"  ($GitJsonScript -re
 Remove-Item "C:\NIP_Software\Scripts\CreateJson.ps1"
 $webClient.DownloadFile($GitJsonScript, "C:\NIP_Software\Scripts\CreateJson.ps1")
  }
-
-#Enter values for these variables before using script
-$skey = "<skey>"
-
-#$TeamsURI = "<WebHookURI>"
-
-$AppsDashboardURL = '<Cloudpager Apps Dashboard URL>'
-
-#Remove the comments for the next 2 lines and add OpenAI API Key to use Open AI API as part of the script
-#$gptkey = ConvertTo-SecureString "<OpenAIAPIKey>" -AsPlainText -Force
-#Set-OpenAIKey -key $gptKey
-
 
 if($WinGet -eq $True -or $Chocolatey -eq $True)
 {
