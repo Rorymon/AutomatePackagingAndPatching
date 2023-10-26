@@ -1,10 +1,7 @@
 # AutomatePackagingandPatching
 
 <h3>Overview</h3>
-This is my first draft of a script that leverages the Evergreen PowerShell module and Cloudpager module to automatically package and patch applications using Numecent Cloudpaging Studio for packaging and Cloudpager for deployment. Combining these technologies can provide a solution to automatically package application and patches plus deploy to your early adopters automatically. Thank to Cloudpager's unique rapid rollback feature, you can also have confidence that any changes made that need to be rolled back, can be rolled back quickly and easily. As the application are packaged into application containers before deployment, the rollback and any removal should always be clean and net-new deployments and application updates are delivered dynamically and seamlessly to the users.
-
-For an overview demo, watch this video:
-https://vimeo.com/824779149 
+This is a new iteration of a script that leverages the Evergreen PowerShell module, Windows Package Manager, Chocolatey and the Numecent Cloudpager module to automatically package and patch applications using Numecent Cloudpaging Studio for packaging and Cloudpager for deployment. Combining these technologies can provide a solution to automatically package application and patch plus deploy to your early adopters automatically. Thank to Cloudpager's unique rapid rollback feature, you can also have confidence that any changes made that may need to be rolled back, can be rolled back quickly and easily. As the applications are packaged into application containers before deployment, the rollback and any removal should always be clean and net-new deployments and application updates are delivered dynamically and seamlessly to the users.
 
 I put info at the bottom of this document to get a video of me walking through the script and explaining the main parts of the script.
 
@@ -20,7 +17,7 @@ I have only tested the script on Windows 10 Enterprise. It should work on a mach
 
 On your Windows 10 VM, install Cloudpaging Studio. This will be used for packaging the applications and patches into application containers. You can find the latest version of Studio on the Numecent customer support portal.
 
-In order to download applications found in the Evergreen PowerShell and upload completed packages using this script, you should launch the default browser on your machine at least once before taking your snapshot. If Internet Explorer is still on the VM, you should launch this once too.
+In order to download applications found in the Evergreen PowerShell and upload completed packages using this script, you should launch the default browser on your machine at least once before taking your snapshot. If Internet Explorer is still on the VM, you should launch this once too. You should also install WinGet (App Installer App) and Chocolatey on the packaging VM.
 
 ![image](https://github.com/Rorymon/AutomateEvergreenPackaging/assets/7652987/7d2d2610-da11-43c8-bc29-cf161776c671)
 
@@ -28,15 +25,15 @@ To use the script, you will need to get the Cloudpager PowerShell module from Nu
 
 ![image](https://github.com/Rorymon/AutomateEvergreenPackaging/assets/7652987/1c52585e-4af7-4d55-8af5-8ec9e9b89591)
 
-Next step, run the SetupScript.ps1 that is on my GitHub repository (https://github.com/Rorymon/AutomateEvergreenPackaging/blob/main/SetupScript.ps1), this will create the directories for your packaging projects and it will download the relevant scripts.
+Next step, run the SetupScript.ps1 that is on my GitHub repository [(https://github.com/Rorymon/AutomateEvergreenPackaging/blob/main/SetupScript.ps1)](https://github.com/Rorymon/AutomatePackagingAndPatching/blob/main/SetupScript.ps1), this will create the directories for your packaging projects and it will download the relevant scripts.
 
 ![image](https://github.com/Rorymon/AutomateEvergreenPackaging/assets/7652987/678dedf0-cfa5-4c0f-8749-779015af7eb7)
 
-Next, install the Evergreen PowerShell Module e.g. Install-Module Evergreen
+Next, install the Evergreen PowerShell Module e.g. Install-Module Evergreen. Also installer the App Installer app from the Microsoft Store and Chocolatey (PowerShell cmdlet to install Chocolatey can be found on the Chocolatey site: https://chocolatey.org/install.
 
 ![image](https://github.com/Rorymon/AutomateEvergreenPackaging/assets/7652987/70fffbef-3251-4408-aee2-ff9e8aea1c7c)
 
-You should I recommend following Numecent's guidance on prepping your packaging VM. [https://github.com/numecent](https://github.com/Numecent/Automated-Packaging/blob/master/CloudpagingStudio-prep.ps1) using the prep script on the Numecent github repo. 
+I recommend following Numecent's guidance on prepping your packaging VM. [https://github.com/numecent](https://github.com/Numecent/Automated-Packaging/blob/master/CloudpagingStudio-prep.ps1) using the prep script on the Numecent github repo. 
 
 ![image](https://github.com/Rorymon/AutomateEvergreenPackaging/assets/7652987/775950de-9b34-4496-b230-d36e76a968d9)
 
@@ -59,7 +56,7 @@ Power back on the VM and run your script for the first time.
 Here is a common example you may use:
 
 ```
-.\AutomateEvergreenPackaging.ps1 -AppName "GoogleChrome" -Publisher "Google" -Sourcepackagetype "msi" -Sourcechannel "stable" -image_file_path "<PathToImageFile" -CommandLine "C:\Program Files\Google\Chrome\Application\chrome.exe" -Description "Google Chrome is the world's most popular web browser." -WorkpodID "<WorkdpodID>"
+.\AutomateEvergreenPackaging.ps1 -AppName "GoogleChrome" -Publisher "Google" -Sourcepackagetype "msi" -Sourcechannel "stable" -image_file_path "<PathToImageFile" -CommandLine "C:\Program Files\Google\Chrome\Application\chrome.exe" -Description "Google Chrome is the world's most popular web browser." -WorkpodID "<WorkdpodID>" -Chocolatey $false -Evergreen $true -WinGet $false
 ```
 
 Before running this, you will want to get a decent icon image for the application. I tend to use .png files that are around 512 x 512 in size. The WorkdpodID is optional, this is only used when you wish to auto-deploy the new package to a Workpod. I always auto-deploy my applications and patches to an Early Adopters Workpod that contains a subset of my users. This way, if the vendor makes a big change to their application and it upsets users, it won't impact the entire organization. If you do not have a Workpod yet, you can create one via the Cloudpager Admin portal or via PowerShell. To retrieve your WorkpodID, use the Cloudpager PowerShell Module e.g. Get-CloudpagerWorkpod -SubscriptionKey "<CloudpagerAPIKey>" -Name "<WorkpodName>"
