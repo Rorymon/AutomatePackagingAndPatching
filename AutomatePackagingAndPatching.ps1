@@ -93,7 +93,7 @@ $skey = "<skey>"
 
 #$TeamsURI = "<WebHookURI>"
 
-$AppsDashboardURL = '<Cloudpager Apps Dashboard URL>'
+#$AppsDashboardURL = '<Cloudpager Apps Dashboard URL>'
 
 #Remove the comments for the next 2 lines and add OpenAI API Key to use Open AI API as part of the script
 #$gptkey = ConvertTo-SecureString "<OpenAIAPIKey>" -AsPlainText -Force
