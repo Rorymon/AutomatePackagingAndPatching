@@ -3,6 +3,7 @@
     Auto-package Applications for Cloudpager.
 .DESCRIPTION
     This script combines the Evergreen Module, Chocolatey, WinGet and Numecent Auto-package feature to automate application packaging of the latest version of public consumer versions of applications
+    This script is published as an example and is wholly owned by Rory Monaghan. This is not a product or script supported by any vendor or firm. No guarantees are made or expressed. Any testing should be performed in a non-production environment.
 .PARAMETER AppName
     Name of Application as found in the Evergreen or Chocolatey e.g. GoogleChrome. This can also be set to an application id in WinGet e.g. Google.Chrome.
 .PARAMETER Publisher
@@ -31,8 +32,9 @@
     If you would like to use the Evergeen PowerShell module as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application name as it appears in the module.
 .PARAMETER WinGet
     If you would like to use WinGet as the source for your application, set this parameter to $true otherwise set it to $false. Also ensure the AppName is set to the corresponding application id as it appears in WinGet.
-.REQUIRES PowerShell Version 5.0, Cloudpager, WinGet, Chocolatey and Evergreen PowerShell modules are required, the PowerShellAI module is optional. You will require this module if you wish to integrate with the OpenAI
-    API. You must have Cloudpaging Studio on the packaging VM along with Numecent's CreateJson.ps1 and studio-nip.ps1. You should run the CloudpagingStudio-prep.ps1 on your packaging VM before taking a snapshot. 
+.REQUIRES PowerShell Version 5.0, Cloudpager, WinGet, Chocolatey and Evergreen PowerShell modules are required, the PSOpenAI module is optional. You will require this module if you wish to integrate with the OpenAI
+    API. To test this capability, find sections of code that are commented out - this code can uncommented along with line for setting your OpenAI API Key to automatically set your description and publisher info. Read the comments in the code for more info. 
+    You must have Cloudpaging Studio on the packaging VM along with Numecent's CreateJson.ps1 and studio-nip.ps1. You should run the CloudpagingStudio-prep.ps1 on your packaging VM before taking a snapshot. 
 .EXAMPLE
     >AutomateEvergreenPackaging.ps1 -AppName "GoogleChrome" -publisher "Google" -sourcepackagetype "msi" -sourcechannel "stable" -image_file_path "\\ImageServer\Images\Chrome.png" -CommandLine "C:\Program Files\Google\Chrome\Application\chrome.exe" -WorkpodID "<id>" -Description "Google Chrome is the world's most popular web browser." -Chocolatety $false -Evergreen $true -WinGet $false
     >AutomateEvergreenPackaging.ps1 -AppName "NotepadPlusPlus" -publisher "Don Ho" -sourcepackagetype "exe" -sourceplatform "Windows" -image_file_path "\\ImageServer\Images\NotepadPlusPlus.png" -Arguments " /S" -CommandLine "C:\Program Files\Notepad++\notepad++.exe" -WorkpodID "<id>" -Chocolatety $false -Evergreen $false -WinGet $true
@@ -96,8 +98,8 @@ $skey = "<skey>"
 #$AppsDashboardURL = '<Cloudpager Apps Dashboard URL>'
 
 #Remove the comments for the next 2 lines and add OpenAI API Key to use Open AI API as part of the script
-#$gptkey = ConvertTo-SecureString "<OpenAIAPIKey>" -AsPlainText -Force
-#Set-OpenAIKey -key $gptKey
+#Import-Module PSOpenAI
+#$global:OPENAI_API_KEY = '<APIKey>'
 
 if ($WinGet -eq $True -and $Evergreen -eq $True) {
     throw 'You must not set WinGet and Evergreen to True, please choose a single source.'
@@ -337,7 +339,8 @@ Catch
 $FriendlyName = Find-EvergreenApp -Name $AppName | Where-Object { ($_.Name -eq $AppName) } | Select -ExpandProperty Application | Sort-Object { [System.Math]::Abs([System.String]::Compare($_, $AppName)) } | Select-Object -First 1
 
 #Remove comment for the line below and change Publisher parameter to Mandatory=$False to let OpenAI API populate the Publisher for you.
-#$Publisher = ai "What vendor makes $FriendlyName? Just return the short name, no other text and no period." | Out-String
+#$PublisherShort = Request-ChatCompletion -Message "Tell me what company makes $FriendlyName, only return the name of the company"
+#$Publisher = $PublisherShort.Answer
 
 Try
 {
@@ -402,7 +405,8 @@ else
 {
 
 #Remove comment for the line below and change Description parameter to let OpenAI API populate the Publisher for you.
-#$Description = ai "What is $Publisher $AppName in 30 words or less." | Out-String
+#$DescriptionShort = Request-ChatCompletion -Message "Describe $Publisher $FriendlyName in 30 words or less"
+#$Description = $DescriptionShort.Answer
 
 .\CreateJson.ps1 -Filepath $DownloadFilePath -Description $Description -Name $FriendlyName -Arguments $Arguments -RegistryExclusions $registryexclusions -FileExclusions $fileexclusion -StudioCommandLine $CommandLine -outputfolder "$ProjectFolder\Output"
 
