@@ -1,4 +1,4 @@
-# AutomatePackagingandPatching
+# AutomatePackagingandPatching v2
 
 <h3>Overview</h3>
 This is a new iteration of a script that leverages the Evergreen PowerShell module, Windows Package Manager, Chocolatey and the Numecent Cloudpager module to automatically package and patch applications using Numecent Cloudpaging Studio for packaging and Cloudpager for deployment. Combining these technologies can provide a solution to automatically package application and patch plus deploy to your early adopters automatically. Thank to Cloudpager's unique rapid rollback feature, you can also have confidence that any changes made that may need to be rolled back, can be rolled back quickly and easily. As the applications are packaged into application containers before deployment, the rollback and any removal should always be clean and net-new deployments and application updates are delivered dynamically and seamlessly to the users.
