@@ -61,6 +61,8 @@ Here is a common example you may use:
 
 Before running this, you will want to find a decent icon image for the application. I tend to use .png files that are around 512 x 512 in size. Raw icon files can be found in the Icons repository. The WorkdpodID is optional, this is only used when you wish to auto-deploy the new package to a Workpod. I always auto-deploy my applications and patches to an Early Adopters Workpod that contains a subset of my users. This way, if the vendor makes a big change to their application and it upsets users, it won't impact the entire organization. If you do not have a Workpod yet, you can create one via the Cloudpager Admin portal or via PowerShell. To retrieve your WorkpodID, use the Cloudpager PowerShell Module e.g. Get-CloudpagerWorkpod -SubscriptionKey "<CloudpagerAPIKey>" -Name "<WorkpodName>"
 
+There is a comprehensive list of examples available in the PowerShell module.
+
 ![image](https://github.com/Rorymon/AutomateEvergreenPackaging/assets/7652987/3dccd9da-67dc-4305-8d33-dffd3b4640ff)
 
 The package uploads may take some time if the application is large. If you did not have Chrome in your tenant already, upon completion of the script you should now have the latest version available. If you already had Chrome but it was not the latest version, the latest version should be published. If the latest version is already in your tenant when you run the script, the script will detect the latest version is already available and exit.
