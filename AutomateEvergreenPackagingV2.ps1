@@ -695,20 +695,40 @@ If($Version -ne $Curversion -or $Curversion -eq $null){
 
     $catalogEntry = Get-CloudpagerWinGetCatalog -PackageIdentifier $AppName
 
-    # Build parameters conditionally: let Cloudpager/catalog auto-set Publisher unless one is provided,
-    # and only pass ImagePath if an image was supplied.
+    # The WinGet catalog object already contains the PackageIdentifier, application name,
+    # publisher and package version required by the Cloudpager AI Packaging API.
+    # Do NOT override Name/AppVersion here: newer Cloudpager API versions can reject
+    # catalog-backed creates with HTTP 400 when those catalog-owned fields are supplied.
+    if ($null -eq $catalogEntry) {
+        throw "Cloudpager WinGet catalog did not return an entry for '$AppName'."
+    }
+
+    # Protect against an unexpectedly broad result. The PackageIdentifier query should
+    # resolve to one catalog entry before it is piped into Add-CloudpagerApplication.
+    $catalogEntries = @($catalogEntry)
+    if ($catalogEntries.Count -ne 1) {
+        throw "Expected exactly one Cloudpager WinGet catalog entry for '$AppName' but received $($catalogEntries.Count)."
+    }
+    $catalogEntry = $catalogEntries[0]
+
     $addParams = @{
         SubscriptionKey = $skey
-        Name            = $Name
-        AppVersion      = $Version
         Description     = $Description
         PublishComment  = "Uploaded using API (AI Packaging - WinGet)"
         Force           = $true
     }
-    if ($Publisher)       { $addParams.Publisher = $Publisher }
+
+    # ImagePath is application metadata rather than WinGet catalog metadata, so retain it
+    # when the caller supplied an icon. Publisher is intentionally NOT overridden here.
     if ($image_file_path) { $addParams.ImagePath = $image_file_path }
 
-    $catalogEntry | Add-CloudpagerApplication @addParams
+    try {
+        $catalogEntry | Add-CloudpagerApplication @addParams -ErrorAction Stop
+    }
+    catch {
+        $message = $_.Exception.Message
+        throw "Failed to create Cloudpager AI-packaged WinGet application '$AppName'. Cloudpager returned: $message"
+    }
 
     $Published = $true; $PublishName = $Name; $PublishVersion = $Version
 
